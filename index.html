@@ -28,26 +28,30 @@
         app.Spinner = Backbone.Model.extend({
             defaults: {
                 value: undefined,
+                class: undefined,
                 index: undefined
             },
             randomizeValue: function (skip) {
                 while (true) {
-                    this.index = Math.floor((Math.random() * data.length) + 1);
+                    this.index = Math.floor((Math.random() * data.length));
                     // break out of this loop only if the slot hasn't already been already displayed
                     if (-1 === $.inArray(this.index, skip)) {
                         break;
                     }
-                }
-                this.value = data[this.index];
+                } 
+                this.value = data[this.index].name;
+                this.class = data[this.index].class;
             }
         });
         app.SpinnerView = Backbone.View.extend({
             initialize: function () {
                 this.model = new app.Spinner();
-                console.log(this.model.value);
             },
             render: function () {
                 this.$el.text(this.model.value);
+                this.$el.removeClass();
+                this.$el.addClass(this.model.class);
+
             },
             spin: function (skip) {
                 this.model.randomizeValue(skip);
