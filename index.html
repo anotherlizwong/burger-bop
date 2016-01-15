@@ -3,20 +3,47 @@
 <head lang="en">
     <meta charset="UTF-8">
     <title>Burger Bop!</title>
+    <style type="text/css">
+
+       .slot {
+            background: url("assets/reel_normal.png") repeat-y; Taken from http://www.swish-designs.co.uk
+            width: 86px;
+            margin: 5px;
+            height: 70px;
+            float: left;
+            border: 1px solid #000;
+            background-position: 0 4px;
+        }
+
+        .motion {
+            background: url("assets/reel_blur.png") repeat-y; Taken from http://www.swish-designs.co.uk
+        }
+
+        .clear {
+            clear:both;
+        }
+
+    </style>
 </head>
 <body>
 
 <div id="container">
+    <h1><img src="assets/burgerbop.png"/></h1>
 
-    <span id="spinner_1">SPIN!</span> |
-    <span id="spinner_2">SPIN!</span> |
-    <span id="spinner_3">SPIN!</span>
-    <hr/>
-    <button id="bop">Bop!</button>
+    <div>
+        <div id="spinner_1" class="slot">SPIN!</div>
+        <div id="spinner_2" class="slot">SPIN!</div>
+        <div id="spinner_3" class="slot">SPIN!</div>
+        <div class="clear"></div>
+    </div>
 
+    <div>
+        <button id="bop">Bop!</button>
+    </div>
 </div>
 
 <script src="libs/jquery-2.2.0.js"></script>
+<script src="libs/jquery.spritely.js"></script>
 <script src="libs/underscore.js"></script>
 <script src="libs/backbone.js"></script>
 <script src="data.js"></script>
@@ -29,8 +56,11 @@
             defaults: {
                 value: undefined,
                 class: undefined,
-                index: undefined
+                index: undefined,
+                max: 0,
+                step: 0
             },
+
             randomizeValue: function (skip) {
                 while (true) {
                     this.index = Math.floor((Math.random() * data.length));
@@ -38,7 +68,7 @@
                     if (-1 === $.inArray(this.index, skip)) {
                         break;
                     }
-                } 
+                }
                 this.value = data[this.index].name;
                 this.class = data[this.index].class;
             }
@@ -50,16 +80,21 @@
             render: function () {
                 this.$el.text(this.model.value);
                 this.$el.removeClass();
-                this.$el.addClass(this.model.class);
-
+                this.$el.addClass('slot', this.model.class);
             },
             spin: function (skip) {
                 this.model.randomizeValue(skip);
                 this.render();
                 return this.model.index;
+            },
+            doThings: function() {
+
+               this.$el.pan({fps: 30, speed: 2, dir: 'up'});
+
             }
         });
         app.SlotMachine = Backbone.View.extend({});
+
         app.SlotMachineView = Backbone.View.extend({
             el: '#container',
             events: {
@@ -73,10 +108,15 @@
                 this.$bop = $('#bop');
             },
             bop: function () {
-                var skip = [];
-                skip.push(this.spinner1.spin());
-                skip.push(this.spinner2.spin(skip));
-                this.spinner3.spin(skip);
+
+                this.spinner1.doThings();
+                this.spinner2.doThings();
+                this.spinner3.doThings();
+
+//                var skip = [];
+//                skip.push(this.spinner1.spin());
+//                skip.push(this.spinner2.spin(skip));
+//                this.spinner3.spin(skip);
             }
         });
         var slotMachine = new app.SlotMachineView();
