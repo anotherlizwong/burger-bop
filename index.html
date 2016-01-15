@@ -6,9 +6,74 @@
 </head>
 <body>
 
+    <div id="container">
+
+        <span id="spinner_1">SPIN!</span>
+        <span id="spinner_2">SPIN!</span>
+        <span id="spinner_3">SPIN!</span>
+
+        <button id="bop">Bop!</button>
+
+    </div>
+
     <script src="libs/jquery-2.2.0.js"></script>
     <script src="libs/underscore.js"></script>
     <script src="libs/backbone.js"></script>
+    <script src="data.js"></script>
 
+    <script>
+
+        (function($) {
+            var app = {};
+
+            app.Spinner = Backbone.Model.extend({
+                defaults: {
+                    value: undefined
+                },
+                randomizeValue: function() {
+                    var int = Math.floor((Math.random() * data.length) + 1);
+                    this.value = data[int];
+                }
+            });
+
+            app.SpinnerView = Backbone.View.extend({
+                initialize: function() {
+                    this.model = new app.Spinner();
+                    console.log(this.model.value);
+                },
+                render: function() {
+                    this.$el.text(this.model.value);
+                },
+                spin: function() {
+                    this.model.randomizeValue();
+                    this.render();
+                }
+            });
+
+            app.SlotMachine = Backbone.View.extend({});
+
+            app.SlotMachineView = Backbone.View.extend({
+                el: '#container',
+                events: {
+                    "click button#bop": "bop"
+                },
+                initialize: function() {
+                    this.model = new app.SlotMachine();
+                    this.spinner1 = new app.SpinnerView({el: $('#spinner_1')});
+                    this.spinner2 = new app.SpinnerView({el: $('#spinner_2')});
+                    this.spinner3 = new app.SpinnerView({el: $('#spinner_3')});
+                    this.$bop = $('#bop');
+                },
+                bop: function() {
+                    this.spinner1.spin();
+                    this.spinner2.spin();
+                    this.spinner3.spin();
+                }
+            });
+
+            var slotMachine =  new app.SlotMachineView();
+
+        })(jQuery);
+    </script>
 </body>
 </html>
