@@ -5,22 +5,40 @@
     <title>Burger Bop!</title>
     <style type="text/css">
 
-       .slot {
-            background: url("assets/reel_normal.png") repeat-y; Taken from http://www.swish-designs.co.uk
-            width: 86px;
-            margin: 5px;
-            height: 70px;
-            float: left;
-            border: 1px solid #000;
-            background-position: 0 4px;
+        table {
+            border-collapse: collapse;
         }
 
-        .motion {
-            background: url("assets/reel_blur.png") repeat-y; Taken from http://www.swish-designs.co.uk
+        table td {
+            border: 1px solid black;
+            height: 152px;
+            width: 152px;
         }
 
-        .clear {
-            clear:both;
+        table td {
+            vertical-align: top;
+            text-align: left;
+        }
+
+        .bacon {
+            background-image: url('assets/bacon.png');
+            background-repeat: no-repeat;
+        }
+        .cheddar_jack {
+            background-image: url('assets/cheddar_jack.png');
+            background-repeat: no-repeat;
+        }
+        .fried_egg {
+            background-image: url('assets/fried_egg.png');
+            background-repeat: no-repeat;
+        }
+        .pesto {
+            background-image: url('assets/pesto.png');
+            background-repeat: no-repeat;
+        }
+        .coleslaw {
+            background-image: url('assets/coleslaw.png');
+            background-repeat: no-repeat;
         }
 
     </style>
@@ -30,12 +48,14 @@
 <div id="container">
     <h1><img src="assets/burgerbop.png"/></h1>
 
-    <div>
-        <div id="spinner_1" class="slot">SPIN!</div>
-        <div id="spinner_2" class="slot">SPIN!</div>
-        <div id="spinner_3" class="slot">SPIN!</div>
-        <div class="clear"></div>
-    </div>
+    <table>
+        <tr>
+            <td id="spinner_1" class="slot"></td>
+            <td id="spinner_2" class="slot"></td>
+            <td id="spinner_3" class="slot"></td>
+        </tr>
+
+    </table>
 
     <div>
         <button id="bop">Bop!</button>
@@ -43,7 +63,6 @@
 </div>
 
 <script src="libs/jquery-2.2.0.js"></script>
-<script src="libs/jquery.spritely.js"></script>
 <script src="libs/underscore.js"></script>
 <script src="libs/backbone.js"></script>
 <script src="data.js"></script>
@@ -54,47 +73,45 @@
         var app = {};
         app.Spinner = Backbone.Model.extend({
             defaults: {
-                value: undefined,
-                class: undefined,
-                index: undefined,
-                max: 0,
-                step: 0
+                value: 'SPIN!',
+                class: '',
+                index: undefined
             },
-
-            randomizeValue: function (skip) {
-                while (true) {
-                    this.index = Math.floor((Math.random() * data.length));
-                    // break out of this loop only if the slot hasn't already been already displayed
-                    if (-1 === $.inArray(this.index, skip)) {
-                        break;
-                    }
-                }
-                this.value = data[this.index].name;
-                this.class = data[this.index].class;
+            randomizeValue: function (model) {
+//                while (true) {
+                model.set('index', Math.floor((Math.random() * data.length)));
+                // break out of this loop only if the slot hasn't already been already displayed
+//                    if (-1 === $.inArray(model.get('index'), skip)) {
+//                        break;
+//                    }
+//                }
+                model.set('class', data[model.get('index')].class);
+                model.set('value', data[model.get('index')].name);
             }
         });
         app.SpinnerView = Backbone.View.extend({
             initialize: function () {
+                debugger;
                 this.model = new app.Spinner();
+                this.listenTo(this.model, 'change:value', this.render);
+                this.render();
             },
             render: function () {
-                this.$el.text(this.model.value);
+                debugger;
+                this.$el.text(this.model.get('value'));
                 this.$el.removeClass();
-                this.$el.addClass('slot', this.model.class);
+                this.$el.addClass(this.model.get('class'));
             },
             spin: function (skip) {
-                this.model.randomizeValue(skip);
-                this.render();
-                return this.model.index;
-            },
-            doThings: function() {
-
-               this.$el.pan({fps: 30, speed: 2, dir: 'up'});
-
+                debugger;
+                for (var i = 0; i < 20; i++) {
+                    _.delay(this.model.randomizeValue, i * 100, this.model);
+                }
+//                this.render();
+//                return this.model.index;
             }
         });
         app.SlotMachine = Backbone.View.extend({});
-
         app.SlotMachineView = Backbone.View.extend({
             el: '#container',
             events: {
@@ -108,15 +125,15 @@
                 this.$bop = $('#bop');
             },
             bop: function () {
-
-                this.spinner1.doThings();
-                this.spinner2.doThings();
-                this.spinner3.doThings();
-
+                this.spinner1.spin();
+                this.spinner2.spin();
+                this.spinner3.spin();
+//
 //                var skip = [];
 //                skip.push(this.spinner1.spin());
 //                skip.push(this.spinner2.spin(skip));
 //                this.spinner3.spin(skip);
+//                this.$bop.html('stop');
             }
         });
         var slotMachine = new app.SlotMachineView();
