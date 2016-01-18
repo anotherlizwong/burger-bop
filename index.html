@@ -20,9 +20,6 @@
             margin: 5px;
             height: 140px;
             width: 172px;
-        }
-
-        table td {
             vertical-align: top;
             text-align: left;
             border-bottom: none;
@@ -34,11 +31,10 @@
 
     </style>
 </head>
-<body>
+<body style="background-image: url('assets/background.jpg');">
 
 <div class="container" id="container" style="text-align: center;">
-    <img src="assets/burgerbop.png"/>
-
+    <img id="bop" src="assets/burgerbop.png"/>
 
     <table align="center">
         <tr>
@@ -47,9 +43,7 @@
             <td id="spinner_3" class="slot"></td>
         </tr>
     </table>
-    <div>
-        <button id="bop">Bop!</button>
-    </div>
+
 </div>
 
 <script src="libs/jquery-2.2.0.js"></script>
@@ -61,27 +55,24 @@
 
     (function ($) {
         var app = {};
-
         app.ChosenValues = new Array(3);
-
         app.Spinner = Backbone.Model.extend({
             defaults: {
                 value: 'SPIN!',
-                class: '',
+                class: undefined,
                 index: undefined,
                 order: -1
             },
             randomizeValue: function (model) {
                 while (true) {
-                model.set('index', Math.floor((Math.random() * data.length)));
-                // break out of this loop only if the slot hasn't already been already displayed
+                    model.set('index', Math.floor((Math.random() * data.length)));
+                    // break out of this loop only if the slot hasn't already been already displayed
                     if (-1 === $.inArray(model.get('index'), app.ChosenValues)) {
                         break;
                     }
                 }
                 model.set('class', data[model.get('index')].class);
                 model.set('value', data[model.get('index')].name);
-
                 // use this to prevent dups
                 app.ChosenValues[model.get('order')] = model.get('index');
             }
@@ -93,7 +84,9 @@
             },
             render: function () {
                 this.$el.text(this.model.get('value'));
-                this.$el.css('background-image', 'url(assets/' + this.model.get('class') + '.png)'); //(this.model.get('class'));
+                if (this.model.get('class')) {
+                    this.$el.css('background-image', 'url(assets/' + this.model.get('class') + '.png)');
+                } //(this.model.get('class'));
             },
             spin: function () {
                 var order = this.model.get('order');
@@ -112,7 +105,7 @@
         app.SlotMachineView = Backbone.View.extend({
             el: '#container',
             events: {
-                "click button#bop": "bop"
+                "click img#bop": "bop"
             },
             initialize: function () {
                 this.model = new app.SlotMachine();
@@ -134,12 +127,6 @@
                 this.model.get('spinner1').spin();
                 this.model.get('spinner2').spin();
                 this.model.get('spinner3').spin();
-//
-//                var skip = [];
-//                skip.push(this.spinner1.spin());
-//                skip.push(this.spinner2.spin(skip));
-//                this.spinner3.spin(skip);
-//                this.$bop.html('stop');
             }
         });
         var slotMachine = new app.SlotMachineView();
