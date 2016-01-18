@@ -3,6 +3,12 @@
 <head lang="en">
     <meta charset="UTF-8">
     <title>Burger Bop!</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="normalize.css">
+    <link rel="stylesheet" href="skeleton.css">
+
     <style type="text/css">
 
         table {
@@ -10,7 +16,8 @@
         }
 
         table td {
-            border: 1px solid black;
+            /*border: 1px solid black;*/
+            margin: 5px;
             height: 140px;
             width: 172px;
         }
@@ -18,6 +25,7 @@
         table td {
             vertical-align: top;
             text-align: left;
+            border-bottom:none;
         }
 
         .slot {
@@ -28,18 +36,17 @@
 </head>
 <body>
 
-<div id="container">
-    <h1><img src="assets/burgerbop.png"/></h1>
+<div class="container" id="container" style="text-align: center;">
+    <img src="assets/burgerbop.png"/>
 
-    <table>
+
+    <table align="center">
         <tr>
             <td id="spinner_1" class="slot"></td>
             <td id="spinner_2" class="slot"></td>
             <td id="spinner_3" class="slot"></td>
         </tr>
-
     </table>
-
     <div>
         <button id="bop">Bop!</button>
     </div>
