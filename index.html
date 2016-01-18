@@ -25,7 +25,7 @@
         table td {
             vertical-align: top;
             text-align: left;
-            border-bottom:none;
+            border-bottom: none;
         }
 
         .slot {
@@ -61,46 +61,54 @@
 
     (function ($) {
         var app = {};
+
+        app.ChosenValues = new Array(3);
+
         app.Spinner = Backbone.Model.extend({
             defaults: {
                 value: 'SPIN!',
                 class: '',
-                index: undefined
+                index: undefined,
+                order: -1
             },
             randomizeValue: function (model) {
-//                while (true) {
+                while (true) {
                 model.set('index', Math.floor((Math.random() * data.length)));
                 // break out of this loop only if the slot hasn't already been already displayed
-//                    if (-1 === $.inArray(model.get('index'), skip)) {
-//                        break;
-//                    }
-//                }
+                    if (-1 === $.inArray(model.get('index'), app.ChosenValues)) {
+                        break;
+                    }
+                }
                 model.set('class', data[model.get('index')].class);
                 model.set('value', data[model.get('index')].name);
+
+                // use this to prevent dups
+                app.ChosenValues[model.get('order')] = model.get('index');
             }
         });
         app.SpinnerView = Backbone.View.extend({
             initialize: function () {
-                debugger;
-                this.model = new app.Spinner();
                 this.listenTo(this.model, 'change:value', this.render);
                 this.render();
             },
             render: function () {
-                debugger;
                 this.$el.text(this.model.get('value'));
                 this.$el.css('background-image', 'url(assets/' + this.model.get('class') + '.png)'); //(this.model.get('class'));
             },
-            spin: function (skip) {
-                debugger;
-                for (var i = 0; i < 20; i++) {
+            spin: function () {
+                var order = this.model.get('order');
+                for (var i = 0; i < (order * 10) + 10; i++) {
                     _.delay(this.model.randomizeValue, i * 100, this.model);
                 }
-//                this.render();
-//                return this.model.index;
             }
         });
-        app.SlotMachine = Backbone.View.extend({});
+        app.SlotMachine = Backbone.Model.extend({
+            defaults: {
+                spinner1: undefined,
+                spinner2: undefined,
+                spinner3: undefined
+            }
+        });
         app.SlotMachineView = Backbone.View.extend({
             el: '#container',
             events: {
@@ -108,15 +116,24 @@
             },
             initialize: function () {
                 this.model = new app.SlotMachine();
-                this.spinner1 = new app.SpinnerView({el: $('#spinner_1')});
-                this.spinner2 = new app.SpinnerView({el: $('#spinner_2')});
-                this.spinner3 = new app.SpinnerView({el: $('#spinner_3')});
+                this.model.set('spinner1', new app.SpinnerView({
+                    el: $('#spinner_1'),
+                    model: new app.Spinner({order: 1})
+                }));
+                this.model.set('spinner2', new app.SpinnerView({
+                    el: $('#spinner_2'),
+                    model: new app.Spinner({order: 2})
+                }));
+                this.model.set('spinner3', new app.SpinnerView({
+                    el: $('#spinner_3'),
+                    model: new app.Spinner({order: 3})
+                }));
                 this.$bop = $('#bop');
             },
             bop: function () {
-                this.spinner1.spin();
-                this.spinner2.spin();
-                this.spinner3.spin();
+                this.model.get('spinner1').spin();
+                this.model.get('spinner2').spin();
+                this.model.get('spinner3').spin();
 //
 //                var skip = [];
 //                skip.push(this.spinner1.spin());
