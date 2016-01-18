@@ -36,7 +36,7 @@ var data = [
     class: "goat_cheese"
   },
   {
-    name: "ear Jack",
+    name: "Cheddar Jack",
     class: "cheddar_jack"
   },
   {
